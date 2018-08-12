@@ -10,6 +10,9 @@ function* rootSaga() {
     takeEvery(UserTypes.FETCH_USER, fetchUserSaga)
   ])
 }
+
+const enhancer = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+
 const reducers = combineReducers({
   user: userReducer
 })
@@ -19,7 +22,7 @@ const sagaMiddleware = createSagaMiddleware()
 // mount it on the Store
 const store = createStore(
   reducers,
-  applyMiddleware(sagaMiddleware)
+  enhancer(applyMiddleware(sagaMiddleware))
 );
 
 // then run the saga

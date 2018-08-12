@@ -25,24 +25,9 @@ class AppDanhSachNV extends Component {
   }
 
   _loadData = async () => {
-    const page = this.state.currentPage + 1;
-    await fetch(
-      `https://randomuser.me/api/?page=${page}&results=${MAX_STAFF_REQUEST_SIZE}`
-    )
-      .then(res => res.json())
-      .then(data => {
-        const { results } = data;
-        const { arrayList } = this.state;
-        let newArrayList = arrayList.concat(results);
-        this.setState(
-          {
-            arrayList: newArrayList,
-            isLoading: false,
-            currentPage: page
-          },
-          () => console.log("loaded page ", page)
-        );
-      });
+    const { user: { page }, fetchUser } = this.props;
+    const nextPage = page + 1;
+    fetchUser({ page: nextPage, pageSize: 20 });
   };
 
   componentWillMount() {
@@ -53,17 +38,17 @@ class AppDanhSachNV extends Component {
 
   _renderItem = ({ item }) => <Text>{item.email}</Text>;
   _loadMore = () => {
-    console.log("_loadMore");
-    const { isLoading } = this.state;
+    const { isLoading } = this.props.user;
     if (isLoading) {
       return;
     }
     this._loadData();
   };
   _renderFlatList = () => {
+    const { user: { data } } = this.props
     return (
       <FlatList
-        data={this.state.arrayList}
+        data={data}
         keyExtractor={this._keyExtractor}
         renderItem={this._renderItem}
         onEndReached={this._loadMore}
@@ -72,7 +57,6 @@ class AppDanhSachNV extends Component {
   };
 
   render() {
-    console.log(this.props);
     return (
       <View style={styles.container}>
         {this._renderFlatList()}
@@ -84,7 +68,7 @@ class AppDanhSachNV extends Component {
 export default connect(
   state => ({ user: state.user }),
   dispatch => ({
-    ...UserActions
+    fetchUser: (params) => dispatch(UserActions.fetchUser(params))
   })
 )(AppDanhSachNV);
 
